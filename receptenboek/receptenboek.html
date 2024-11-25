@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Examen Receptenboek</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+<body>
+
+<script>
+	class Recept {
+		constructor(naam, ingredienten, bereidingstijd){
+			this.naam = naam;
+			this.ingredienten = ingredienten;
+			this.bereidingstijd = bereidingstijd;
+		}
+
+		getDetails(){
+			return `Recept: ${this.naam} - Ingrediënten: ${this.ingredienten.join(', ')} - Bereidingstijd: ${this.bereidingstijd} min.`;
+		}
+
+		// Voegt een ingrediënt toe aan de lijst.
+		voegIngredientToe(ingredient) {
+			this.ingredienten.push(ingredient);
+		}
+
+		//Verwijdert een ingrediënt uit de lijst
+		verwijderIngredient(ingredient){
+			this.ingredienten = this.ingredienten.filter((item) =>
+				item.ingredienten !== ingredient);
+		}
+	}
+
+	class Nagerecht extends Recept{
+		constructor(naam, ingredienten, bereidingstijd, zoetheidsniveau) {
+			super(naam, ingredienten, bereidingstijd);
+			this.zoetheidsniveau = zoetheidsniveau;
+		}
+
+		getDetails(){
+			return `Recept: ${this.naam} - Ingrediënten: ${this.ingredienten.join(', ')} - Bereidingstijd: ${this.bereidingstijd} min. - Zoetheidsniveau: ${this.zoetheidsniveau}`;
+		}
+	}
+
+	class Hoofdgerecht extends Nagerecht{
+		constructor(naam, ingredienten, bereidingstijd, zoetheidsniveau, porties) {
+			super(naam, ingredienten, bereidingstijd, zoetheidsniveau);
+			this.porties = porties;
+
+		}
+
+		getDetails(){
+			return `Recept: ${this.naam} - Ingrediënten: ${this.ingredienten.join(', ')} - Bereidingstijd: ${this.bereidingstijd} min. - Zoetheidsniveau: ${this.zoetheidsniveau} - Porties: ${this.porties ? this.porties : `Dit gerecht heeft geen info over de porties.`}`;
+		}
+	}
+
+	// Class voor het beheren van recepten
+	class Receptenboek{
+		constructor() {
+			// Array om recepten op te slaan
+			this.recepten = [];
+		}
+
+		//voeg recept toe
+		voegReceptToe(recept) {
+			this.recepten.push(recept);
+		}
+
+
+		// Geeft een lijst van alle recepten
+		toonRecepten() {
+			this.recepten.forEach((recept) => {
+				console.log(recept.getDetails());
+			});
+		}
+
+		//Zoekt naar een recept op naam
+		zoekReceptOpNaam(naam) {
+			return this.recepten.find((recept) => recept.naam === naam);
+		}
+
+
+		// Verwijdert een recept uit het boek
+		verwijderRecept(naam){
+			this.recepten = this.recepten.filter((recept) =>
+					recept.naam !== naam);
+		}
+
+		//Sorteert recepten op bereidingstijd
+		sorteerReceptenOpTijd(){
+			this.recepten.sort((a, b) => a.bereidingstijd - b.bereidingstijd);
+		}
+
+	}
+
+	// Test de basisclass
+	const spaghetti = new Recept('Spaghetti Bolognese', ['Spaghetti', 'Tomatensaus', 'Gehakt'], 30);
+	console.log(spaghetti.getDetails()); // Details over het recept
+	spaghetti.voegIngredientToe('Parmezaanse kaas');
+	console.log(spaghetti.getDetails()); // Parmezaanse kaas toegevoegd
+	spaghetti.verwijderIngredient('Gehakt');
+	console.log(spaghetti.getDetails()); // Gehakt verwijderd
+
+	// Test de subclasses
+	const taart = new Nagerecht('Chocoladetaart', ['Bloem', 'Suiker', 'Chocolade', 'Eieren'], 60, 8);
+	console.log(taart.getDetails()); // Details van de taart
+
+	const curry = new Hoofdgerecht('Thaise Curry', ['Rijst', 'Kokosmelk', 'Groenten'], 40, 4);
+	console.log(curry.getDetails()); // Details van de curry
+
+	// Test het receptenboek
+	const receptenboek = new Receptenboek();
+	receptenboek.voegReceptToe(spaghetti);
+	receptenboek.voegReceptToe(taart);
+	receptenboek.voegReceptToe(curry);
+
+	console.log('--- Alle recepten ---');
+	receptenboek.toonRecepten();
+
+	console.log('--- Zoek "Thaise Curry" ---');
+	const gevondenRecept = receptenboek.zoekReceptOpNaam('Thaise Curry');
+	console.log(gevondenRecept ? gevondenRecept.getDetails() : 'Recept niet gevonden.');
+
+	console.log('--- Sorteer op bereidingstijd ---');
+	receptenboek.sorteerReceptenOpTijd();
+	receptenboek.toonRecepten();
+
+	console.log('--- Verwijder "Spaghetti Bolognese" ---');
+	receptenboek.verwijderRecept('Spaghetti Bolognese');
+	receptenboek.toonRecepten();
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.js"></script>
+</body>
+</html>

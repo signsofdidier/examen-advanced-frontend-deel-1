@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="nl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pokémon Filters</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .pokemon-card img {
+                max-height: 150px;
+                object-fit: contain;
+            }
+
+            .pokemon-card p::first-letter {
+                text-transform: capitalize;
+            }
+
+            .modal-body img {
+                max-height: 150px;
+                object-fit: contain;
+            }
+            .filter-container {
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="text-center mb-4">Pokémon Filters</h1>
+
+            <!-- Filteropties -->
+            <div class="filter-container">
+                <label for="type-filter" class="form-label"><strong>Filter op type:</strong></label>
+                <select id="type-filter" class="form-select">
+                    <option value="">Alle types</option>
+                    <!-- Dynamische opties komen hier -->
+                </select>
+            </div>
+
+            <!-- Pokémon Cards -->
+            <div id="pokemon-list" class="row g-3">
+                <!-- Dynamische inhoud hier -->
+            </div>
+        </div>
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+
+
+            function renderPokemonCards() {
+                const url = `https://pokeapi.co/api/v2/pokemon?limit=50`; // Eerste API-aanroep: lijst van Pokémon
+
+                // Lijst van Pokémon ophalen
+                axios.get(url)
+                    .then(response => {
+                        const pokemonList = response.data.results; // Bevat de naam en URL van elke Pokémon
+                        let outputHTML = '';
+
+                        // Voor elke Pokémon: detailinformatie ophalen
+                        pokemonList.forEach(poke => {
+                            axios.get(poke.url) // Tweede API-aanroep: details van elke Pokémon
+                                .then(pokemonDetail => {
+                                    /* console.log(pokemonDetail.data);*/
+                                    const details = pokemonDetail.data;
+
+                                    let selectInput = document.getElementById("type-filter");
+
+                                    // Voeg een event listener toe aan de selectInput
+                                    selectInput.addEventListener("change", function () {
+
+                                    });
+
+                                    // Kaarten dynamisch genereren
+                                    outputHTML += `
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                    <div type="button" class="card pokemon-card h-100" data-bs-toggle="modal" data-bs-target="#${details.name}">
+                                        <img src="${details.sprites.front_default}" class="card-img-top" alt="${details.name}">
+                                        <div class="card-body text-center">
+                                            <p class="card-text">${details.name}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="${details.name}" tabindex="-1" aria-labelledby="pokemonModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="pokemonModalLabel">Pokémon Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="text-center">
+                                                    <img id="modal-pokemon-img" src="${details.sprites.front_default}" class="img-fluid mb-3" alt="${details.name} afbeelding" style="max-height: 200px;">
+
+                                                </div>
+                                                <h4 id="modal-pokemon-name" class="text-center"></h4>
+                                                <ul class="list-group">
+                                                    <li class="list-group-item"><strong>Type(s):</strong> <span id="modal-pokemon-types">${details.types.map(type => type.type.name).join(", ")}</span></li>
+                                                    <li class="list-group-item"><strong>Hoogte:</strong> <span id="modal-pokemon-height"></span>${details.height / 10} m</li>
+                                                    <li class="list-group-item"><strong>Gewicht:</strong> <span id="modal-pokemon-weight"></span>${details.weight / 10} kg</li>
+                                                    <li class="list-group-item"><strong>Statistieken:</strong>
+                                                        <ul id="modal-pokemon-stats" class="mt-2">
+                                                            ${details.stats.map(stat => `<li>${stat.stat.name}: ${stat.base_stat}</li>`).join('')}
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+                                    // De kaarten bijwerken na het ophalen van elk detail
+                                    document.getElementById("pokemon-list").innerHTML = outputHTML;
+                                })
+                                .catch(error => {
+                                    console.error(`Fout bij het ophalen van details voor ${poke.name}:`, error);
+                                });
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Fout bij het ophalen van de Pokémon-lijst:", error);
+                        document.getElementById("pokemon-list").innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Er is een fout opgetreden bij het ophalen van de Pokémon-lijst.
+                    </div>`;
+                    });
+            }
+
+            // Roep de functie aan om Pokémon toe te voegen
+            renderPokemonCards();
+        </script>
+    </body>
+</html>
